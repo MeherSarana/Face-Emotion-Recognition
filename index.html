@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Emotion Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+            top: 0;
+            left: 0;
+            position: fixed;
+            z-index: 1000;
+            margin: 0; /* Remove margin */
+        }
+
+        nav {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+            margin-top:9px;
+            left:0;
+            position: fixed;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+        }
+
+        nav a:hover {
+            background-color: #555;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 90px; /* Adjusted to be below the header and nav */
+            height: calc(100vh - 180px); /* Adjusted height to fit screen properly */
+        }
+
+        .toggle-container {
+            text-align: center;
+            margin-bottom: -20px;
+        }
+
+        .toggle-button {
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            position: relative;
+        }
+
+        .toggle-button input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            background-color: rgb(119, 150, 126);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            margin: 0; /* Remove margin */
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        #realTimeSection,
+        #uploadSection {
+            width: 80%; /* Adjust width to center content */
+            max-width: 600px; /* Maximum width for larger screens */
+            text-align: center;
+            margin-bottom:280px ;
+        }
+        #realTimeSection img {
+            margin-top: -20px;
+            margin-bottom: -300px;
+            width: 400px;
+            height: 330px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Face Emotion Recognition</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About FER</a></li>
+        </ul>
+    </nav>
+    <main>
+        <div class="toggle-container">
+            <label class="toggle-button">
+                <input type="checkbox" id="toggleSwitch">
+                <span class="slider"></span>
+            </label>
+            <label for="toggleSwitch">Real-time / Upload</label>
+        </div>
+        <div id="realTimeSection" class="hidden">
+            <h2>Real-time Emotion Detection</h2>
+            <img src="{{ url_for('video') }}" alt="Real-time Emotion Detection">
+        </div>
+        <div id="uploadSection">
+            <h2>Upload Image to Detect Emotion</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <input type="submit" value="Upload">
+            </form>
+        </div>
+    </main>
+    <footer>
+        <p>Team Members</p>
+        <p>Meher Sarana</p>
+        <p>Ashwin Bhaskaran</p>
+        
+    </footer>
+    <script>
+        document.getElementById('toggleSwitch').addEventListener('change', function() {
+            var realTimeSection = document.getElementById('realTimeSection');
+            var uploadSection = document.getElementById('uploadSection');
+            if (this.checked) {
+                realTimeSection.classList.remove('hidden');
+                uploadSection.classList.add('hidden');
+            } else {
+                realTimeSection.classList.add('hidden');
+                uploadSection.classList.remove('hidden');
+            }
+        });
+        function validateAndSubmit() {
+            var fileInput = document.getElementById('fileInput');
+            var file = fileInput.files[0];
+    
+            if (!file) {
+                alert("Please upload an image file");
+                fileInput.value = ''; // Reset the file input
+                return;
+            }
+    
+            if (!file.type.startsWith('image/')) {
+                alert("Please upload an image file");
+                fileInput.value = ''; // Reset the file input
+                return;
+            }
+    
+            document.getElementById('uploadForm').submit();
+        }
+    
+        // Handle form submission success
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            uploadImage(); // Call uploadImage function
+        });
+    
+        function uploadImage() {
+            var fileInput = document.getElementById('fileInput');
+            fileInput.value = ''; // Reset the file input
+            
+            // Your additional code for analyzing the emotion goes here
+            // For demonstration purposes, let's assume face detection fails
+            var result = "Face could not be detected in uploaded image.";
+            
+            // Display the result on the page
+            document.getElementById('result').innerHTML = "<h2>" + result + "</h2>";
+        }
+    </script>
+</body>
+</html>
